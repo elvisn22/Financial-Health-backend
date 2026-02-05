@@ -10,14 +10,23 @@ class Base(DeclarativeBase):
 
 settings = get_settings()
 
-connect_args: dict = {}
+# Only needed for SQLite
+connect_args = {}
 if settings.database_url.startswith("sqlite"):
-    # Needed for SQLite when used with FastAPI in a multi-threaded context
     connect_args["check_same_thread"] = False
 
-engine = create_engine(settings.database_url, echo=False, future=True, connect_args=connect_args)
+engine = create_engine(
+    settings.database_url,
+    echo=False,
+    future=True
+)
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine, future=True)
+SessionLocal = sessionmaker(
+    bind=engine,
+    autocommit=False,
+    autoflush=False,
+    future=True
+)
 
 
 def get_db():
@@ -26,4 +35,3 @@ def get_db():
         yield db
     finally:
         db.close()
-
